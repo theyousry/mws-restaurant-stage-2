@@ -12,19 +12,96 @@ class DBHelper {
     return `http://localhost:${port}/restaurants`;
   }
 
+  static createIDBStore(restaurants) {
+    // Get compatible indexeddb
+    var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+
+    // Create the database
+    var open = indexedDB.open("RestaurantDB", 1);
+
+    // Create the schema
+    open.onupgradeneeded = function() {
+      var db = open.result;
+      var store = db.createObjectStore("RestaurantStore", { keyPath: "id" });
+      var index = store.createIndex("by-id", "id");
+    };
+
+    open.onerror = function(err) {
+      console.error("Something wrong with IndexDB: " + err.target.errorCode);
+    }
+
+    open.onsuccess = function() {
+      // Start new transaction
+      var db = open.result;
+      var tx = db.transaction("RestaurantStore", "readwrite");
+      var store = tx.objectStore("RestaurantStore");
+      var index = store.index("by-id");
+
+      // Add restaurant data
+      restaurants.forEach(function(restaurant) {
+        store.put(restaurant);
+      });
+
+      // Close the database when transaction is done
+      tx.oncomplete = function() {
+        db.close();
+      };
+    }
+  }
+
+  static getCachedData(callback) {
+    var restaurants = [];
+
+    // Get compatible indexeddb
+    var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+    var open = indexedDB.open("RestaurantDB", 1);
+
+    open.onsuccess = function() {
+      // Start new transaction
+      var db = open.result;
+      var tx = db.transaction("RestaurantStore", "readwrite");
+      var store = tx.objectStore("RestaurantStore");
+      var getData = store.getAll();
+
+      getData.onsuccess = function() {
+        callback(null, getData.result);
+      }
+
+      // Close the database when transaction is done
+      tx.oncomplete = function() {
+        db.close();
+      };
+    }
+  }
+
   /**
    * Fetch all restaurants.
    */
    static fetchRestaurants(callback) {
-     fetch(DBHelper.DATABASE_URL, { method: 'GET' })
-       .then(res => {
-         if (!res.ok) {
-           throw "Unable to fetch restaurant data from API";
+     let xhr = new XMLHttpRequest();
+     xhr.open('GET', DBHelper.DATABASE_URL);
+
+     xhr.onerror = () => {
+       DBHelper.getCachedData((error, restaurants) => {
+         if (restaurants.length > 0) {
+           console.log('Unable to fetch data from server!!!');
+           callback(null, restaurants);
          }
-         return res.json();
-       })
-       .then(restaurants => callback(null, restaurants))
-       .catch(err => callback(err, null))
+       });
+     }
+
+     xhr.onload = () => {
+       if (xhr.status === 200) { //if a success response from server!!
+         const restaurants = JSON.parse(xhr.responseText);
+         DBHelper.createIDBStore(restaurants); // cache restaurants..
+         callback(null, restaurants);
+       } else { // if an error shows from server!!
+         const error = (`Request failed!!! Returned status of ${xhr.status}`);
+         callback(error, null);
+       }
+     };
+
+     xhr.send();
    }
 
   /**

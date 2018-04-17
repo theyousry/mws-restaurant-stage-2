@@ -183,7 +183,7 @@ addMarkersToMap = (restaurants = self.restaurants) => {
  * Register Service Worker for Offline Availability.
  */
 if (navigator.serviceWorker) {
-  navigator.serviceWorker.register('/js/sw.js')
+  navigator.serviceWorker.register('sw.js')
     .then(() => console.log('Registeration Worked!'))
     .catch(() => console.log('REGISTERATION FAILED!!!'));
 }

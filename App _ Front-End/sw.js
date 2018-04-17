@@ -1,6 +1,6 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('mws-restaurant-stage-1').then(cache => {
+    caches.open('mws-restaurant-stage-2').then(cache => {
       return cache.addAll([
         '/',
         '/css/styles.css',
