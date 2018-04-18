@@ -8,6 +8,14 @@ var markers = []
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+
+  // Register Service Worker for Offline Availability.
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.register('/sw.js')
+    .then(registration => console.log('Registeration Worked With Scope: ', registration.scope))
+    .catch(err => console.log('REGISTERATION FAILED: ', err));
+  }
+
   fetchNeighborhoods();
   fetchCuisines();
 });
@@ -177,13 +185,4 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     });
     self.markers.push(marker);
   });
-}
-
-/**
- * Register Service Worker for Offline Availability.
- */
-if (navigator.serviceWorker) {
-  navigator.serviceWorker.register('sw.js')
-    .then(() => console.log('Registeration Worked!'))
-    .catch(() => console.log('REGISTERATION FAILED!!!'));
 }
