@@ -78,10 +78,22 @@ class DBHelper {
    * Fetch all restaurants.
    */
    static fetchRestaurants(callback) {
-     let xhr = new XMLHttpRequest();
-     xhr.open('GET', DBHelper.DATABASE_URL);
-
-     xhr.onerror = () => {
+     if (navigator.onLine) {
+       let xhr = new XMLHttpRequest();
+       xhr.open('GET', DBHelper.DATABASE_URL);
+       xhr.onload = () => {
+         if (xhr.status === 200) { //if a success response from server!!
+           const restaurants = JSON.parse(xhr.responseText);
+           DBHelper.createIDBStore(restaurants); // cache restaurants..
+           callback(null, restaurants);
+         } else {  // if an error shows from server!!
+           const error = (`REQUEST FAILED!!! Returned status of ${xhr.status}`);
+           callback(error, null);
+         }
+       };
+       xhr.send();
+     } else {
+       console.log('Offline using Cached data!');
        DBHelper.getCachedData((error, restaurants) => {
          if (restaurants.length > 0) {
            console.log('Unable to fetch data from server!!!');
@@ -89,19 +101,6 @@ class DBHelper {
          }
        });
      }
-
-     xhr.onload = () => {
-       if (xhr.status === 200) { //if a success response from server!!
-         const restaurants = JSON.parse(xhr.responseText);
-         DBHelper.createIDBStore(restaurants); // cache restaurants..
-         callback(null, restaurants);
-       } else { // if an error shows from server!!
-         const error = (`Request failed!!! Returned status of ${xhr.status}`);
-         callback(error, null);
-       }
-     };
-
-     xhr.send();
    }
 
   /**
