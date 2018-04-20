@@ -63,6 +63,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
+  
+  new LazyLoad();
 
   // fill operating hours
   if (restaurant.operating_hours) {

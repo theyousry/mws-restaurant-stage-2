@@ -173,6 +173,8 @@ createRestaurantHTML = (restaurant) => {
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', 'View details for ' + restaurant.name + ' Restaurant');
   li.append(more)
+  
+  new LazyLoad();
 
   return li
 }
