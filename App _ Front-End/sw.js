@@ -5,6 +5,7 @@ self.addEventListener('install', event => {
         '/',
         '/css/styles.css',
         '/css/responsive.css',
+        '/dist/bundle.min.css',
         '/js/dbhelper.js',
         '/js/main.js',
         '/js/restaurant_info.js',

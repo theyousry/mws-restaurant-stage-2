@@ -240,3 +240,14 @@ class DBHelper {
   }
 
 }
+
+// Register Service Worker for Offline Availability.
+registerServiceWorker = () => {
+  if (navigator.serviceWorker) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+  .then(registration => console.log('Registeration Worked With Scope: ', registration.scope))
+  .catch(err => console.log('REGISTERATION FAILED: ', err));
+})
+}
+}

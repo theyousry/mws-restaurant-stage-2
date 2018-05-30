@@ -84,17 +84,6 @@ window.initMap = () => {
   updateRestaurants();
 }
 
-// Register Service Worker for Offline Availability.
-registerServiceWorker = () => {
-  if (navigator.serviceWorker) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-  .then(registration => console.log('Registeration Worked With Scope: ', registration.scope))
-  .catch(err => console.log('REGISTERATION FAILED: ', err));
-})
-}
-}
-
 /**
  * Update page and map for current restaurants.
  */
@@ -173,7 +162,7 @@ createRestaurantHTML = (restaurant) => {
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', 'View details for ' + restaurant.name + ' Restaurant');
   li.append(more)
-  
+
   new LazyLoad();
 
   return li
